@@ -4,71 +4,83 @@
 #include <locale.h>
 #include <time.h>
 
-#define MAXLENGTH 20
+#define MAXLENGTH 10
+#define STRUCTSIZE 44
 #define TRUE 1
 #define FALSE 0
 
-FILE *openFile(FILE *fp, char *fileName);
-int checkWordSame(wchar_t *w1, wchar_t *w2);
-wchar_t *readWord(FILE *fp, wchar_t *comparedWord);
-
 typedef struct inputWord    // 단어를 저장하기 위한 구조체
 {
-    wchar_t *inputWord;
+    wchar_t inputWord[MAXLENGTH];
     int isUsed;
 } inputWordStruct;
+
+FILE *openFile(FILE *fp, char *fileName);
+int checkWordSame(wchar_t *w1, wchar_t *w2);
+wchar_t readWord(FILE *fp, wchar_t *comparedWord, inputWordStruct fileReadWord);
 
 int vsCom()
 {
     setlocale(LC_ALL, "");  // 한글 사용을 위한 지역 설정
 
     FILE *fp;   // 파일 포인터 선언
-    inputWordStruct fileWriteWord;    // 파일에 넣을 단어를 저장하는 구조체
-    inputWordStruct fileReadWord;     // 파일에서 꺼내온 단어를 저장하는 구조체
-    fileWriteWord.inputWord = malloc(sizeof(char) * MAXLENGTH);  // 사용자로부터 입력받는 단어를 저장한 변수
+    inputWordStruct fileWriteWord;
+    inputWordStruct fileReadWord;
 
-    fp = openFile(fp, "words");
-    
-    scanf("%ls", fileWriteWord.inputWord);
+    fp = openFile(fp, "words.dic");
 
-    fwrite(&fileWriteWord, sizeof(fileWriteWord), 1, fp);      
-    
-    fseek(fp, 0, SEEK_SET);
-    fread(&fileReadWord, sizeof(fileReadWord), 1, fp);
-    printf("dd:%ls\n", fileReadWord.inputWord);
-    printf("%ld\n", ftell(fp));
+    // fseek(fp, 0, SEEK_END);
+    // printf("%ld\n", ftell(fp));
 
-    //checkWordSame();
+    readWord(fp, L" ", fileReadWord);
 
-    free(fileWriteWord.inputWord);
+    printf("%ls\n", fileReadWord.inputWord);
+    printf("%d\n", fileReadWord.isUsed);
+
+    //scanf("%ls", fileWriteWord.inputWord);
+
+    // fileWriteWord.isUsed = FALSE;
+    // fwrite(&fileWriteWord, sizeof(fileWriteWord), 1, fp);
+
     fclose(fp);
 }
 
-wchar_t *readWord(FILE *fp, wchar_t *comparedWord)      // 단어장으로 부터 단어 읽기
+wchar_t readWord(FILE *fp, wchar_t *comparedWord, inputWordStruct fileReadWord)      // 단어장으로 부터 단어 읽기
 {
-    srand(time(NULL));
+    setlocale(LC_ALL, "");
 
-    inputWordStruct temp;     // 단어 비교를 위한 임시로 단어를 담아놓을 변수
+    srand(time(NULL));
     
     fseek(fp, 0, SEEK_END);
-    long int wordCount = ftell(fp) / 9;      // 단어의 총 개수
+    long int wordCount = ftell(fp) / STRUCTSIZE;      // 단어의 총 개수
+    __ssize_t ret;
 
-    int random = (rand() % wordCount + 1);      // 0 ~ 단어의 개수 만큼 범위의 난수 생성
+    int random = ((rand() % wordCount) + 1);      // 1 ~ 단어의 개수 만큼 범위의 난수 생성
 
-    fseek(fp, 9 * random, SEEK_SET);
-    fread(&temp, sizeof(temp), 1, fp); 
+    fseek(fp, STRUCTSIZE * (random-1), SEEK_SET);   // 랜덤 수 - 1 이 해당 번호의 수
 
-    while(temp.isUsed != FALSE) {       // 이미 사용된 단어가 아닐 때 까지 반복
-        fread(&temp, sizeof(temp), 1, fp);
-        if(ftell(fp) == (wordCount * 9) - 1) {        // 단어장의 끝에 도달
+    do {       // 이미 사용된 단어가 아닐 때 까지 반복
+        ret = fread(&fileReadWord, sizeof(fileReadWord), 1, fp);
+
+        if(ret != 1) {   // fread() 오류 발생 시
+            printf("fread() error!\n");
+            exit(-1);
+        }
+
+        if(ftell(fp) == (wordCount * STRUCTSIZE)) {        // 단어장의 끝에 도달
             fseek(fp, 0, SEEK_SET);
         }
-    }
 
-    return temp.inputWord;
+        if(checkWordSame(comparedWord, fileReadWord.inputWord)) {
+            if(fileReadWord.isUsed != FALSE) {
+                break;
+            }
+        }
+
+    } while(fileReadWord.isUsed != FALSE);
 }
 
-int checkWordSame(wchar_t *w1, wchar_t *w2)
+int checkWordSame(wchar_t w1[], wchar_t w2[])
 {
     setlocale(LC_ALL, "");
     wchar_t last = w1[wcslen(w1) - 1];
@@ -83,7 +95,7 @@ int checkWordSame(wchar_t *w1, wchar_t *w2)
 
 FILE *openFile(FILE *fp, char *fileName)
 {
-    fp = fopen("words.txt", "a+");
+    fp = fopen(fileName, "a+");
 
     if(fp == NULL) {
         printf("file open error!\n");
