@@ -3,6 +3,8 @@
 #include <wchar.h>
 #include <locale.h>
 #include <time.h>
+#include <pthread.h>
+#include <unistd.h>
 
 #define MAXLENGTH 10
 #define STRUCTSIZE 44
@@ -18,6 +20,8 @@ typedef struct inputWord    // 단어를 저장하기 위한 구조체
 FILE *openFile(FILE *fp, char *fileName);
 int checkWordSame(wchar_t *w1, wchar_t *w2);
 wchar_t readWord(FILE *fp, wchar_t *comparedWord, inputWordStruct fileReadWord);
+void writeWord(FILE *fp, inputWordStruct fileWriteWord);
+void timer();
 
 int vsCom()
 {
@@ -29,20 +33,58 @@ int vsCom()
 
     fp = openFile(fp, "words.dic");
 
-    // fseek(fp, 0, SEEK_END);
-    // printf("%ld\n", ftell(fp));
+    while(1) {
+        if(!readWord(fp, L" ", fileReadWord)) {
+            if(existWord == 1) {
+                writeWord(fp, fileWriteWord);
+            }
+        }
+        printf("%ls\n", fileReadWord.inputWord);
 
-    readWord(fp, L" ", fileReadWord);
+        scanf("%ls", fileWriteWord.inputWord);
+        if(!checkWordSame(fileReadWord.inputWord, fileWriteWord.inputWord)) {
+            printf("끝말이 일치하지 않음");
+            return 0;
+        }
 
-    printf("%ls\n", fileReadWord.inputWord);
-    printf("%d\n", fileReadWord.isUsed);
-
-    //scanf("%ls", fileWriteWord.inputWord);
-
-    // fileWriteWord.isUsed = FALSE;
-    // fwrite(&fileWriteWord, sizeof(fileWriteWord), 1, fp);
+        //timer();
+    }
 
     fclose(fp);
+}
+
+void timer()
+{
+    for(int i=5; i>=0; i--) {
+        printf("%d\n", i);
+        sleep(1);
+    }
+}
+
+int existWord(FILE *fp, wchar_t *comparedWord)
+{
+    fseek(fp, 0, SEEK_SET);
+    long int wordCount = ftell(fp) / STRUCTSIZE;
+    inputWordStruct temp;
+
+    for(int i=0; i<wordCount; i++) {
+        fread(&temp, sizeof(temp), 1, fp);
+        if(strcmp(temp.inputWord, comparedWord) == 0) {
+            return 0;       // 이미 단어가 존재
+        } else {
+            return 1;       // 단어장에 없던 단어
+        }
+    }
+}
+
+void writeWord(FILE *fp, inputWordStruct fileWriteWord)
+{
+    ssize_t ret = fwrite(&fileWriteWord, sizeof(fileWriteWord), 1, fp);
+    
+    if(ret != 1) {
+        printf("fwrite() error!\n");
+        exit(-1);
+    }
 }
 
 wchar_t readWord(FILE *fp, wchar_t *comparedWord, inputWordStruct fileReadWord)      // 단어장으로 부터 단어 읽기
@@ -58,6 +100,7 @@ wchar_t readWord(FILE *fp, wchar_t *comparedWord, inputWordStruct fileReadWord) 
     int random = ((rand() % wordCount) + 1);      // 1 ~ 단어의 개수 만큼 범위의 난수 생성
 
     fseek(fp, STRUCTSIZE * (random-1), SEEK_SET);   // 랜덤 수 - 1 이 해당 번호의 수
+    long int firstPos = ftell(fp);
 
     do {       // 이미 사용된 단어가 아닐 때 까지 반복
         ret = fread(&fileReadWord, sizeof(fileReadWord), 1, fp);
@@ -69,6 +112,11 @@ wchar_t readWord(FILE *fp, wchar_t *comparedWord, inputWordStruct fileReadWord) 
 
         if(ftell(fp) == (wordCount * STRUCTSIZE)) {        // 단어장의 끝에 도달
             fseek(fp, 0, SEEK_SET);
+        }
+
+        if(ftell(fp) == firstPos) {     // 단어장을 한바퀴 다 돌았을 때
+            pritnf("Com 패배\n");
+            return 0;
         }
 
         if(checkWordSame(comparedWord, fileReadWord.inputWord)) {
