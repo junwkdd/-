@@ -11,6 +11,7 @@
 
 #define MAXLENGTH 10
 #define STRUCTSIZE 44
+#define BUFFERSIZE 1024
 #define TRUE 1
 #define FALSE 0
 #define PORT 3000
@@ -28,7 +29,7 @@ void writeWord(FILE *wordFp, inputWordStruct fileWriteWord);
 int existWord(FILE *wordFp, wchar_t *comparedWord);
 void inputWord(inputWordStruct *fileWriteWord);
 void resetUsed(FILE *wordFp);
-void wordSend(wchar_t *word);
+int wordSend(wchar_t *word);
 void timer();
 
 int vsCom()
@@ -54,61 +55,72 @@ int vsCom()
         curPos = readWord(wordFp, fileWriteWord.inputWord, &fileReadWord);
         if(curPos == 0) {     // Com의 패배
             printf("Com 패배\n");
-
             if(existWord(wordFp, fileWriteWord.inputWord) == 1) {      // 단어장에 없던 단어
-                writeWord(wordFp, fileWriteWord);
-                return 0;
-            } else {
-                return 0;
+                if(wordSend(fileWriteWord.inputWord) == 1) {            // 올바른 단어라면
+                    writeWord(wordFp, fileWriteWord);
+                }
             }
+            return 0;
         }
 
         printf("com: %ls\n", fileReadWord.inputWord);
 
         printf("you: ");
         inputWord(&fileWriteWord);
-        wordSend(fileWriteWord.inputWord);
-
-        //timer(5)      // 5초 제한시간
-
-        if(!checkWordSame(fileReadWord.inputWord, fileWriteWord.inputWord)) {       // 사용자 입력단와 비교
-            printf("com: %ls, you: %ls\n", fileReadWord.inputWord, fileWriteWord.inputWord);
+        if(checkWordSame(fileReadWord.inputWord, fileWriteWord.inputWord) == 1) {       // 사용자 입력단어와 일치하면
+            printf("단어 적합성 확인중...\n");
+            if(wordSend(fileWriteWord.inputWord) == 0) {            // 올바른 단어가 아니라면
+                return 0;
+            }
+            printf("올바른 단어\n");
+        } else {
             printf("끝말이 일치하지 않음\n");
+            printf("com: %ls, you: %ls\n", fileReadWord.inputWord, fileWriteWord.inputWord);
             return 0;
         }
+        //timer(5)      // 5초 제한시간
+
     }
 
     fclose(wordFp);
 } 
 
-void wordSend(wchar_t *wordSend)
+int wordSend(wchar_t *wordSend)
 {
-    int sock = 0; 
-    struct sockaddr_in serv_addr; 
+    int clientSocket = 0, recvVal; 
+    struct sockaddr_in serverAddr;
+    char buffer[BUFFERSIZE] = {0}; 
     char *word = malloc(sizeof(10));
 
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) { 
+    if ((clientSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) { 
         printf("\n Socket creation error \n"); 
         exit(-1);
     }
 
-    serv_addr.sin_family = AF_INET; 
-    serv_addr.sin_port = htons(PORT); 
+    serverAddr.sin_family = AF_INET; 
+    serverAddr.sin_port = htons(PORT); 
 
-    if(inet_pton(AF_INET, "192.168.10.131", &serv_addr.sin_addr)<=0) { 
-        printf("\nInvalid address/ Address not supported \n"); 
+    if(inet_pton(AF_INET, "192.168.10.131", &serverAddr.sin_addr)<=0) { 
+        printf("올바르지않은 서버 주소입니다.\n"); 
         exit(-1);
     } 
-   
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)  { 
-        printf("\nConnection Failed \n"); 
+
+    if (connect(clientSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)  { 
+        printf("서버가 열려있지 않습니다.\n"); 
         exit(-1);
-    } 
+    }
 
     wcstombs (word, wordSend, 10);
+    send(clientSocket , word , strlen(word) , 0 ); 
 
-    send(sock , word , strlen(word) , 0 ); 
-    printf("client: word sent: %s\n", word);
+    recvVal = read(clientSocket, buffer, 1024); 
+
+    if(buffer[0] == '1') {
+        return 1;       // 올바른 단어
+    } else {
+        printf("올바르지 않은 단어\n");
+        return 0;       // 올바르지 않은 단어
+    }
 }
 
 void timer()
@@ -145,6 +157,8 @@ void resetUsed(FILE *wordFp)            // 사용된 단어 초기화
 
 void inputWord(inputWordStruct *fileWriteWord)
 {
+    wcscmp(fileWriteWord->inputWord, L" ");
+
     scanf("%ls", fileWriteWord->inputWord);
 
     if(wcslen(fileWriteWord->inputWord) <= 1) {     // 입력받은 글자가 한 글자 이하인 경우
@@ -172,28 +186,14 @@ int existWord(FILE *wordFp, wchar_t *comparedWord)
         printf("단어장에 이미 존재하는 단어\n");
         return 0;       // 이미 단어가 존재
     } else {
-        printf("단어를 추가합니다.\n");
+        printf("단어장에 존재하지 않는 단어\n");
         return 1;       // 단어장에 없던 단어
     }
 }
 
 void writeWord(FILE *wordFp, inputWordStruct fileWriteWord)
 {
-    // FILE *dicFp = fopen("../data/dictionary.dic", "r");       // 읽기전용으로 사전파일 열기 
-    // int appropriateWord = FALSE;
-    // wchar_t temp[10];
-
-    // while(!feof(dicFp)) {
-    //     fgetws(temp, sizeof(temp), dicFp);
-    //     if(wcscmp(temp, fileWriteWord.inputWord) == 0) {
-    //         printf("%ls\n", temp);
-    //         appropriateWord = TRUE;
-    //         break;
-    //     }
-    // }
-
-    // if(appropriateWord == TRUE) {
-    //     fseek(wordFp, 0, SEEK_END);
+    printf("단어를 추가합니다\n");
 
     fileWriteWord.isUsed = FALSE;
     ssize_t ret = fwrite(&fileWriteWord, sizeof(fileWriteWord), 1, wordFp);
@@ -202,12 +202,6 @@ void writeWord(FILE *wordFp, inputWordStruct fileWriteWord)
         printf("fwrite() error!\n");
         exit(-1);
     }
-    // } else {
-    //     printf("적절하지 않은 단어입니다.\n");
-    //     printf("그럼에도 불구하고 추가하기\n");
-    // }
-
-    // fclose(dicFp);
 }
 
 int readWord(FILE *wordFp, wchar_t *comparedWord, inputWordStruct *fileReadWord)      // 단어장으로 부터 단어 읽기
@@ -269,6 +263,10 @@ int checkWordSame(wchar_t w1[], wchar_t w2[])
     wchar_t last = w1[wcslen(w1) - 1];
     wchar_t first = w2[0];
 
+    if(wcscmp(w1, L"") == 0) {
+        return 0;
+    }
+
     if(last == first) {
         return 1;       // 일치하면
     } else {
@@ -296,7 +294,7 @@ int main()
 
     sleep(3);
 
-    system("clear");
+    // system("clear");
 
     return 0;
 }
