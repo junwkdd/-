@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include <stdlib.h>
 #include <time.h>
 #include <termios.h>
@@ -8,9 +9,11 @@
 
 int main()
 {
-   setlocale(LC_ALL, "");  // 한글 사용을 위한 지역 설정
+   char temp[10] = "개나리";
 
-   wchar_t temp[10] = L"반가워";
+   printf("%s\n", temp);
 
-   printf("%lc\n", temp[2]);
+   strcpy(temp, " ");
+
+   printf("%s\n", temp);
 }

@@ -70,9 +70,11 @@ int main()
         char vaildWord = client(buffer);
 
         if(vaildWord == '1') {
-            printf("%s: 올바른 단어이다.\n\n", buffer);
+            printf("%s: 올바른 단어\n\n", buffer);
+        } else if(vaildWord == '2') {
+            printf("%s: 명사가 아닌 단어\n\n", buffer);
         } else {
-            printf("%s: 올바르지 않은 단어이다.\n\n", buffer);
+            printf("%s: 존재하지 않는 단어\n\n", buffer);
         }
 
         send(newSocket, &vaildWord , 1 , 0 ); 
@@ -125,9 +127,11 @@ char client(char *word)
         mbstowcs(&pos, &posPtr[5], 3);      // 3바이트 한글을 wchar 한바이트에 저장
 
         if(pos == L'명') {
-            return '1';
+            return '1';         // 올바른 단어
+        } else {
+            return '2';         // 명사가 아닌 단어
         }
+    } else {
+        return '3';             // 존재하지 않는 단어
     }
-
-    return '0';
 }
