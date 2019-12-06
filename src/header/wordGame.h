@@ -32,3 +32,7 @@ void inputWord(inputWordStruct *fileWriteWord);
 void resetUsed(FILE *wordFp);
 int validWord(wchar_t *word);
 void timer();
+int vsPerson();
+int vsCom();
+int matchingPerson(int clientSocket);
+int connectServer();

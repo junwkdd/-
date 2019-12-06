@@ -2,7 +2,6 @@
 
 int connectServer();
 int matchingPerson(int clientSocket);
-void print();
 
 int vsPerson()
 {
@@ -134,14 +133,4 @@ int connectServer()
     printf("서버 접속 성공\n");
 
     return clientSocket;
-}
-
-int matchingWord()
-{
-    
-}
-
-int main()
-{
-    vsPerson();
 }

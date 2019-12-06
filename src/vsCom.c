@@ -1,4 +1,4 @@
-#include "header/wordGame.h"
+#include "./header/wordGame.h"
 
 int vsCom()
 {
@@ -30,7 +30,7 @@ int vsCom()
         inputWord(&fileWriteWord);
         if(checkWordSame(fileReadWord.inputWord, fileWriteWord.inputWord) == 1) {       // 사용자 입력단어와 일치하면
             printf("단어 적합성 확인중...\n");
-            if(vaildword(fileWriteWord.inputWord) == 0) {            // 올바른 단어가 아니라면
+            if(validWord(fileWriteWord.inputWord) == 0) {            // 올바른 단어가 아니라면
                 return 0;
             }
             printf("올바른 단어\n");
