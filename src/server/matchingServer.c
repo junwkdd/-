@@ -1,4 +1,4 @@
-#include "header/wordGame.h"
+#include "../header/wordGame.h"
 
 int server()
 {
@@ -33,6 +33,8 @@ int server()
         perror("listen"); 
         exit(EXIT_FAILURE); 
     }
+
+    printf("서버 준비완료\n");
 
     while(1) {
         for(i=0; i<2; i++) {

@@ -1,7 +1,5 @@
-#include "./header/wordGame.h"
-
-int connectServer();
-int matchingPerson(int clientSocket);
+#include "../header/vsGame.h"
+#include "../header/wordGame.h"
 
 int vsPerson()
 {
@@ -83,6 +81,7 @@ int vsPerson()
     }
 } 
 
+
 int matchingPerson(int clientSocket)
 {
     char recvVal;
@@ -111,7 +110,7 @@ int connectServer()
 
     if ((clientSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
     { 
-        printf("\n Socket creation error \n"); 
+        printf("소켓 생성 에러\n"); 
         return -1; 
     } 
    
@@ -121,12 +120,12 @@ int connectServer()
     // Convert IPv4 and IPv6 addresses from text to binary form 
     if(inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr)<=0)  
     { 
-        printf("\nInvalid address/ Address not supported \n"); 
+        printf("잘못된 서버 주소\n"); 
         return -1; 
     } 
    
     if (connect(clientSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) { 
-        printf("\nConnection Failed \n"); 
+        printf("서버가 열려있지 않습니다.\n"); 
         return -1; 
     }
 

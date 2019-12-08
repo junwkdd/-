@@ -22,17 +22,14 @@ typedef struct inputWord    // 단어를 저장하기 위한 구조체
     int isUsed;
 } inputWordStruct;
 
-int vsCom();
-FILE *openFile(FILE *wordFp, char *fileName);
-int checkWordSame(wchar_t *w1, wchar_t *w2);
-int readWord(FILE *wordFp, wchar_t *comparedWord, inputWordStruct *fileReadWord);
-void writeWord(FILE *wordFp, inputWordStruct fileWriteWord);
-int existWord(FILE *wordFp, wchar_t *comparedWord);
-void inputWord(inputWordStruct *fileWriteWord);
-void resetUsed(FILE *wordFp);
-int validWord(wchar_t *word);
+int validWord(wchar_t *wordSend);
 void timer();
-int vsPerson();
-int vsCom();
+void resetUsed(FILE *wordFp);
+void inputWord(inputWordStruct *fileWriteWord);
+int existWord(FILE *wordFp, wchar_t *comparedWord);
+void writeWord(FILE *wordFp, inputWordStruct fileWriteWord);
+int readWord(FILE *wordFp, wchar_t *comparedWord, inputWordStruct *fileReadWord);
+int checkWordSame(wchar_t w1[], wchar_t w2[]);
+FILE *openFile(FILE *wordFp, char *fileName);
 int matchingPerson(int clientSocket);
 int connectServer();

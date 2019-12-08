@@ -1,4 +1,4 @@
-#include "./header/wordGame.h"
+#include "../header/vsGame.h"
 
 int main()
 {
@@ -9,6 +9,7 @@ int main()
     printf("2. vsPerson\n");
     scanf("%d", &vs);
 
+    printf("vs: %d\n", vs);
     if(vs == 1) {
         vsCom();
     } else if(vs == 2) {

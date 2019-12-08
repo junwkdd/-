@@ -1,4 +1,4 @@
-#include "header/wordGame.h"
+#include "../header/wordGame.h"
 
 int validWord(wchar_t *wordSend)
 {
@@ -81,7 +81,7 @@ void inputWord(inputWordStruct *fileWriteWord)
     scanf("%ls", fileWriteWord->inputWord);
 
     if(wcslen(fileWriteWord->inputWord) <= 1) {     // 입력받은 글자가 한 글자 이하인 경우
-        printf("입력이 잘못되었다.");
+        printf("입력이 잘못되었습니다.\n");
         exit(-1);
     }
 }
@@ -133,7 +133,13 @@ int readWord(FILE *wordFp, wchar_t *comparedWord, inputWordStruct *fileReadWord)
     long int wordCount = ftell(wordFp) / STRUCTSIZE;      // 단어의 총 개수
 
     if(wordCount == 0) {
+        printf("단어장에 단어가 없습니다.\n");
+        printf("첫단어를 입력해주세요: ");
         inputWord(fileReadWord);
+        printf("단어 적합성 확인중...\n");
+        if(validWord(fileReadWord->inputWord) == 0) {            // 올바른 단어가 아니라면
+            return 0;
+        }
         writeWord(wordFp, *fileReadWord);
         exit(-1);
     }
@@ -148,7 +154,7 @@ int readWord(FILE *wordFp, wchar_t *comparedWord, inputWordStruct *fileReadWord)
         ret = fread(fileReadWord, sizeof(*fileReadWord), 1, wordFp);
 
         if(ret != 1) {   // fread() 오류 발생 시
-            printf("fread() error!\n");
+            printf("파일읽기 오류!\n");
             exit(-1);
         }
 
@@ -198,7 +204,7 @@ FILE *openFile(FILE *wordFp, char *fileName)
     wordFp = fopen(fileName, "r+");
 
     if(wordFp == NULL) {
-        printf("file open error!\n");
+        printf("파일 열기 오류\n");
         exit(1);
     } 
 

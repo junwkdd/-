@@ -1,4 +1,5 @@
-#include "./header/wordGame.h"
+#include "../header/vsGame.h"
+#include "../header/wordGame.h"
 
 int vsCom()
 {
@@ -10,9 +11,11 @@ int vsCom()
 
     int curPos;
 
-    wordFp = openFile(wordFp, "../data/words.dic");
+    wordFp = openFile(wordFp, "../../data/words.dic");
 
     resetUsed(wordFp);
+
+    wcscpy(fileWriteWord.inputWord, L"");
 
     while(1) {
         curPos = readWord(wordFp, fileWriteWord.inputWord, &fileReadWord);
@@ -28,6 +31,7 @@ int vsCom()
 
         printf("you: ");
         inputWord(&fileWriteWord);
+
         if(checkWordSame(fileReadWord.inputWord, fileWriteWord.inputWord) == 1) {       // 사용자 입력단어와 일치하면
             printf("단어 적합성 확인중...\n");
             if(validWord(fileWriteWord.inputWord) == 0) {            // 올바른 단어가 아니라면
