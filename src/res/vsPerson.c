@@ -19,9 +19,7 @@ int vsPerson()
 
     recvVal = matchingPerson(clientSocket);
 
-    while(1) {
-        system("clear");
-        
+    while(1) {        
         if((recvVal % 2) == 1) {
             printf("당신의 차례: ");
             inputWord(&myWord);

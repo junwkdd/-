@@ -81,7 +81,6 @@ int main()
     }
 }
 
-
 char client(char *word)
 {
     int clientSocket = 0, recvVal; 

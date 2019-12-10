@@ -1,6 +1,6 @@
 #include "../header/wordGame.h"
 
-int validWord(wchar_t *wordSend)
+int validWord(wchar_t *wordSend)        // 표준국어대사전에 단어 유효성 확인
 {
     int clientSocket = 0;
     char recvVal; 
@@ -43,7 +43,7 @@ int validWord(wchar_t *wordSend)
     free(word);
 }
 
-void *t_function(void *data)
+void *t_function(void *data)        // 스레드를 이용한 타이머
 {
     int time = *((int *)data);
     int i = 0;
@@ -54,11 +54,6 @@ void *t_function(void *data)
 
     printf("Time Over!!!\n");
     exit(-1);
-}
-
-void timer(int num)
-{
-
 }
 
 void resetUsed(FILE *wordFp)            // 사용된 단어 초기화
@@ -85,7 +80,7 @@ void resetUsed(FILE *wordFp)            // 사용된 단어 초기화
     }
 }
 
-void inputWord(inputWordStruct *fileWriteWord)
+void inputWord(inputWordStruct *fileWriteWord)      // 사용자로부터 단어 입력
 {
     pthread_t p_thread;
 
@@ -111,7 +106,7 @@ void inputWord(inputWordStruct *fileWriteWord)
     }
 }
 
-int existWord(FILE *wordFp, wchar_t *comparedWord)
+int existWord(FILE *wordFp, wchar_t *comparedWord)      // 기존에 존재하던 단어 여부 확인
 {
     fseek(wordFp, 0, SEEK_END);
     long int wordCount = ftell(wordFp) / STRUCTSIZE;
@@ -135,7 +130,7 @@ int existWord(FILE *wordFp, wchar_t *comparedWord)
     }
 }
 
-void writeWord(FILE *wordFp, inputWordStruct fileWriteWord)
+void writeWord(FILE *wordFp, inputWordStruct fileWriteWord)     // 파일에 단어 입력
 {
     printf("단어를 추가합니다\n");
 
@@ -207,7 +202,7 @@ int readWord(FILE *wordFp, wchar_t *comparedWord, inputWordStruct *fileReadWord)
     } while(1);      // 이미 사용된 단어가 아닐 때 까지 반복
 }
 
-int checkWordSame(wchar_t w1[], wchar_t w2[])
+int checkWordSame(wchar_t w1[], wchar_t w2[])           // 끝말과 앞말이 같은지 확인
 {
     setlocale(LC_ALL, "");
     wchar_t last = w1[wcslen(w1) - 1];
@@ -224,7 +219,7 @@ int checkWordSame(wchar_t w1[], wchar_t w2[])
     }
 }
 
-FILE *openFile(FILE *wordFp, char *fileName)
+FILE *openFile(FILE *wordFp, char *fileName)            // 단어장 파일 열기
 {
     wordFp = fopen(fileName, "r+");
 
