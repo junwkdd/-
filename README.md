@@ -1,8 +1,8 @@
 # 리눅스 프로젝트 끝말잇기
 
 
-cd src\n
-cd res\n
-./APIServer
-./matchingServer
-./main
+1. cd src
+2. cd res
+3. ./APIServer
+4. ./matchingServer
+5. ./main
