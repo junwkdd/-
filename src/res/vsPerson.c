@@ -20,6 +20,8 @@ int vsPerson()
     recvVal = matchingPerson(clientSocket);
 
     while(1) {
+        system("clear");
+        
         if((recvVal % 2) == 1) {
             printf("당신의 차례: ");
             inputWord(&myWord);
@@ -129,7 +131,7 @@ int connectServer()
         return -1; 
     }
 
-    printf("서버 접속 성공\n");
+    printf("\n서버 접속 성공\n");
 
     return clientSocket;
 }

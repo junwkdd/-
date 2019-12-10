@@ -21,7 +21,8 @@ int validWord(wchar_t *wordSend)
     } 
 
     if (connect(clientSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)  { 
-        printf("서버가 열려있지 않습니다.\n"); 
+        printf("API 서버가 열려있지 않습니다.\n"); 
+        printf("./APIServer 명령어로 서버를 실행해주세요.\n");
         exit(-1);
     }
 
@@ -42,12 +43,22 @@ int validWord(wchar_t *wordSend)
     free(word);
 }
 
-void timer()
+void *t_function(void *data)
 {
-    for(int i=5; i>=0; i--) {
-        printf("%d\n", i);
+    int time = *((int *)data);
+    int i = 0;
+
+    for(i=0; i<time; i++) {
         sleep(1);
     }
+
+    printf("Time Over!!!\n");
+    exit(-1);
+}
+
+void timer(int num)
+{
+
 }
 
 void resetUsed(FILE *wordFp)            // 사용된 단어 초기화
@@ -76,9 +87,23 @@ void resetUsed(FILE *wordFp)            // 사용된 단어 초기화
 
 void inputWord(inputWordStruct *fileWriteWord)
 {
+    pthread_t p_thread;
+
+    int thr_id;
+    int status;
+    int time = 5;
+
     wcscmp(fileWriteWord->inputWord, L" ");
 
+    thr_id = pthread_create(&p_thread, NULL, t_function, (void *)&time);
+    if (thr_id < 0) {
+        perror("쓰레드 생성 에러\n");
+        exit(-1);
+    }
+
     scanf("%ls", fileWriteWord->inputWord);
+
+    pthread_cancel(p_thread);
 
     if(wcslen(fileWriteWord->inputWord) <= 1) {     // 입력받은 글자가 한 글자 이하인 경우
         printf("입력이 잘못되었습니다.\n");

@@ -1,7 +1,10 @@
 #include "../header/vsGame.h"
+#include <stdlib.h>
 
 int main()
 {
+    system("clear");
+
     int vs;
 
     printf("끝말잇기\n");
@@ -9,7 +12,6 @@ int main()
     printf("2. vsPerson\n");
     scanf("%d", &vs);
 
-    printf("vs: %d\n", vs);
     if(vs == 1) {
         vsCom();
     } else if(vs == 2) {

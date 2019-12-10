@@ -37,10 +37,10 @@ int vsCom()
             if(validWord(fileWriteWord.inputWord) == 0) {            // 올바른 단어가 아니라면
                 return 0;
             }
-            printf("올바른 단어\n");
+            printf("올바른 단어\n\n");
         } else {
             printf("끝말이 일치하지 않습니다.\n");
-            printf("com: %ls, you: %ls\n", fileReadWord.inputWord, fileWriteWord.inputWord);
+            printf("com: %ls, you: %ls\n\n", fileReadWord.inputWord, fileWriteWord.inputWord);
             return 0;
         }
         //timer(5)      // 5초 제한시간
